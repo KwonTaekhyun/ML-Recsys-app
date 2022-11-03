@@ -28,14 +28,15 @@ STEPS = 50000
 movie_df = pd.read_csv('./ml-latest-small/movies.csv')
 rating_df = pd.read_csv('./ml-latest-small/ratings.csv')
 tag_df = pd.read_csv('./ml-latest-small/tags.csv')
+links_df = pd.read_csv('./ml-latest-small/links.csv')
 
 data = pd.merge(movie_df, rating_df, on=['movieId'], how='inner')
 data = data.drop(['title', 'timestamp'], axis=1)
 data = data[['userId', 'movieId', 'rating', 'genres']]
 data.columns = [USER_COL, ITEM_COL, RATING_COL, ITEM_FEAT_COL]
 
-temp_movie_df = movie_df[['movieId', 'title']]
-temp_movie_df.columns = ['itemID', 'title']
+temp_movie_df = links_df[['movieId', 'imdbId']]
+temp_movie_df.columns = ['itemID', 'imdbID']
 movie_dict = temp_movie_df.set_index('itemID').to_dict('index')
 
 genres_encoder = sklearn.preprocessing.MultiLabelBinarizer()
@@ -124,21 +125,3 @@ model.train(
     input_fn=train_fn,
     steps=STEPS
 )
-
-if len(RATING_METRICS) > 0:
-    predictions = list(model.predict(
-        input_fn=tf_utils.pandas_input_fn(df=test)))
-    prediction_df = test.drop(RATING_COL, axis=1)
-    prediction_df[PREDICT_COL] = [p['predictions'][0] for p in predictions]
-
-    rating_results = {}
-    for m in RATING_METRICS:
-        result = evaluator.metrics[m](test, prediction_df, **cols)
-        sb.glue(m, result)
-        rating_results[m] = result
-    print(rating_results)
-
-predict_movies = prediction_df[prediction_df['userID'] == 417].sort_values(
-    by=['prediction'], ascending=False).iloc[0:10]['itemID'].apply(lambda x: movie_dict[x]['title'])
-
-print(predict_movies)

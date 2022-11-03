@@ -1,17 +1,36 @@
 <script>
- let message = '';
- let src = '';
- 
- async function getName() {
-      let thisMessage = message;
-      let res = await fetch(`./message?name=${message}`);
-      let message_received = await res.text();
-      if (res.ok && thisMessage == message) {
-          src = message_received;
-      }
-  }
+import { getByID } from "node-movie";
+
+let userid = '';
+let RecMoviesJson = '';
+let imdbIDList = [];
+let recMovieInfoList = [];
+
+async function getRecMovies() {
+	let res = await fetch(`./movie?userid=${userid}`);
+	RecMoviesJson = await res.text();
+	imdbIDList = JSON.parse(RecMoviesJson);
+	recMovieInfoList = [];
+
+	console.log(imdbIDList);
+
+	for (const id of imdbIDList){
+		let tempID = id
+		let paddedID = tempID.toString().padStart(7, '0');
+
+		await getByID("tt" + paddedID, data => {
+			recMovieInfoList = [...recMovieInfoList, data];
+		});
+	}
+}
+
 </script>
 
-<h1>Received Message: {src}!</h1>
-<input type="text" placeholder="enter your name" bind:value={message} />
-<button on:click={getName}>Send Message</button>
+<input type="text" placeholder="enter userID" bind:value={userid} />
+<button on:click={getRecMovies}>Predict</button>
+{#each recMovieInfoList as {Title, Poster}, i }
+	<li>
+		<img src={Poster} alt="Movie Poster"/>
+		<div>{i+1}. {Title}</div>
+	</li>
+{/each}
