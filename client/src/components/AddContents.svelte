@@ -91,7 +91,6 @@ onMount(async () => {
                         bind:value={new_rating['genre']}
                         label="Genre"
                     >
-                        <Option value={null} />
                         {#each Genres as Genre}
                             <Option value={Genre}>{Genre}</Option>
                         {/each}
@@ -102,10 +101,10 @@ onMount(async () => {
                         key={(Movie) => `${Movie ? Movie['movieId'] : '0'}`}
                         bind:value={new_rating['movieId']}
                         label="Movie"
+                        style="min-width: 250px"
                     >
-                        <Option value={null} />
                         {#each Movies[new_rating['genre']] as Movie}
-                            <Option value={Movie['movieId']}>{Movie['title']}</Option>
+                            <Option value={Movie['movieId']} style="min-width: 200px">{Movie['title']}</Option>
                         {/each}
                     </Select>
                 </div>
@@ -115,7 +114,6 @@ onMount(async () => {
                         bind:value={new_rating['rating']}
                         label="Rating"
                     >
-                        <Option value={null} />
                         {#each Ratings as Rating}
                             <Option value={Rating}>{Rating}</Option>
                         {/each}

@@ -161,5 +161,5 @@ train_fn = tf_utils.pandas_input_fn(
 
 model.train(
     input_fn=train_fn,
-    steps=20000
+    steps=30000
 )
